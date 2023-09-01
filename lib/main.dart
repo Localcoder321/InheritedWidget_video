@@ -7,12 +7,35 @@ GlobalKey<ProductListWidgetState>();
 
 void main() {
   runApp(
-    const MaterialApp(
+    MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Store',
-      home: MyStorePage(),
+      theme: ThemeData(
+        useMaterial3: true,
+      ),
+      home: const MyStorePage(),
     ),
   );
+}
+
+class AppState {
+  final List<String> productList;
+  final Set<String> itemsInCart;
+
+  AppState({
+    required this.productList,
+    this.itemsInCart = const <String>{},
+});
+
+  AppState copyWith ({
+    List<String>? productList,
+    Set<String>? itemsInCart,
+}) {
+    return AppState(
+        productList: productList ?? this.productList,
+      itemsInCart: itemsInCart ?? this.itemsInCart,
+    );
+  }
 }
 
 class MyStorePage extends StatefulWidget {
