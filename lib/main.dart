@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 
-final GlobalKey<ProductListWidgetState> productList =
-GlobalKey<ProductListWidgetState>();
-
 void main() {
   runApp(
     const AppStateWidget(
@@ -114,6 +111,7 @@ class AppStateWidgetState extends State<AppStateWidget> {
 
 class MyStorePage extends StatefulWidget {
   const MyStorePage({Key? key}) : super(key: key);
+
   @override
   MyStorePageState createState() => MyStorePageState();
 }
@@ -122,20 +120,20 @@ class MyStorePageState extends State<MyStorePage> {
   bool _inSearch = false;
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  void _toggleSearch() {
+
+  void _toggleSearch(BuildContext context) {
     setState(() {
       _inSearch = !_inSearch;
     });
-
+    AppStateWidget.of(context).setProductList(Server.getProductList());
     _controller.clear();
-    productList.currentState!.productList = Server.getProductList();
   }
 
-  void _handleSearch() {
+  void _handleSearch(BuildContext context) {
     _focusNode.unfocus();
     final String filter = _controller.text;
-    productList.currentState!.productList =
-        Server.getProductList(filter: filter);
+    AppStateWidget.of(context)
+        .setProductList(Server.getProductList(filter: filter));
   }
 
   @override
@@ -153,22 +151,24 @@ class MyStorePageState extends State<MyStorePage> {
               autofocus: true,
               focusNode: _focusNode,
               controller: _controller,
-              onSubmitted: (_) => _handleSearch(),
+              onSubmitted: (_) => _handleSearch(context),
               decoration: InputDecoration(
                 hintText: 'Search Google Store',
                 prefixIcon: IconButton(
-                    icon: const Icon(Icons.search),
-                    onPressed: _handleSearch),
+                  icon: const Icon(Icons.search),
+                  onPressed: () => _handleSearch(context),
+                ),
                 suffixIcon: IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: _toggleSearch),
+                  icon: const Icon(Icons.close),
+                  onPressed: () => _toggleSearch(context),
+                ),
               ),
             )
                 : null,
             actions: [
               if (!_inSearch)
                 IconButton(
-                  onPressed: _toggleSearch,
+                  onPressed: () => _toggleSearch(context),
                   icon: const Icon(Icons.search, color: Colors.black),
                 ),
               const ShoppingCartIcon(),
@@ -176,8 +176,8 @@ class MyStorePageState extends State<MyStorePage> {
             backgroundColor: Colors.white,
             pinned: true,
           ),
-          SliverToBoxAdapter(
-            child: ProductListWidget(key: productList),
+          const SliverToBoxAdapter(
+            child: ProductListWidget(),
           ),
         ],
       ),
@@ -223,51 +223,32 @@ class ShoppingCartIcon extends StatelessWidget {
   }
 }
 
-// TODO: convert ProductListWidget into StatelessWidget.
-class ProductListWidget extends StatefulWidget {
+class ProductListWidget extends StatelessWidget {
   const ProductListWidget({Key? key}) : super(key: key);
-  @override
-  ProductListWidgetState createState() => ProductListWidgetState();
-}
 
-class ProductListWidgetState extends State<ProductListWidget> {
-  List<String> get productList => _productList;
-  List<String> _productList = Server.getProductList();
-  set productList(List<String> value) {
-    setState(() {
-      _productList = value;
-    });
+  void _handleAddToCart(String id, BuildContext context) {
+    AppStateWidget.of(context).addToCart(id);
   }
 
-  Set<String> get itemsInCart => _itemsInCart;
-  Set<String> _itemsInCart = <String>{};
-  set itemsInCart(Set<String> value) {
-    setState(() {
-      _itemsInCart = value;
-    });
+  void _handleRemoveFromCart(String id, BuildContext context) {
+    AppStateWidget.of(context).removeFromCart(id);
   }
 
-  void _handleAddToCart(String id) {
-    itemsInCart = _itemsInCart..add(id);
-  }
-
-  void _handleRemoveFromCart(String id) {
-    itemsInCart = _itemsInCart..remove(id);
-  }
-
-  Widget _buildProductTile(String id) {
+  Widget _buildProductTile(String id, BuildContext context) {
     return ProductTile(
       product: Server.getProductById(id),
-      purchased: itemsInCart.contains(id),
-      onAddToCart: () => _handleAddToCart(id),
-      onRemoveFromCart: () => _handleRemoveFromCart(id),
+      purchased: AppStateScope.of(context).itemsInCart.contains(id),
+      onAddToCart: () => _handleAddToCart(id, context),
+      onRemoveFromCart: () => _handleRemoveFromCart(id, context),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final List<String> productList = AppStateScope.of(context).productList;
     return Column(
-      children: productList.map(_buildProductTile).toList(),
+      children:
+      productList.map((id) => _buildProductTile(id, context)).toList(),
     );
   }
 }
@@ -351,10 +332,13 @@ const Map<String, Product> kDummyData = {
     title: 'Explore Pixel phones',
     description: TextSpan(children: <TextSpan>[
       TextSpan(
-          text: 'Capture the details.\n',
-          style: TextStyle(color: Colors.black)),
+        text: 'Capture the details.\n',
+        style: TextStyle(color: Colors.black),
+      ),
       TextSpan(
-          text: 'Capture your world.', style: TextStyle(color: Colors.blue)),
+        text: 'Capture your world.',
+        style: TextStyle(color: Colors.blue),
+      ),
     ]),
     pictureURL: '$baseAssetURL/pixels.png',
   ),
@@ -372,8 +356,13 @@ const Map<String, Product> kDummyData = {
     title: 'Nest Audio Entertainment packages',
     description: TextSpan(children: <TextSpan>[
       TextSpan(
-          text: 'Built for music.\n', style: TextStyle(color: Colors.orange)),
-      TextSpan(text: 'Made for you.', style: TextStyle(color: Colors.black)),
+        text: 'Built for music.\n',
+        style: TextStyle(color: Colors.orange),
+      ),
+      TextSpan(
+        text: 'Made for you.',
+        style: TextStyle(color: Colors.black),
+      ),
     ]),
     pictureURL: '$baseAssetURL/nest-audio-packages.png',
   ),
