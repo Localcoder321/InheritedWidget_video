@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 
-final GlobalKey<ShoppingCartIconState> shoppingCart =
-GlobalKey<ShoppingCartIconState>();
 final GlobalKey<ProductListWidgetState> productList =
-GlobalKey<ProductListWidgetState>();
+    GlobalKey<ProductListWidgetState>();
 
 void main() {
   runApp(
-    MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Store',
-      theme: ThemeData(
-        useMaterial3: true,
+    AppStateWidget(
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Store',
+        theme: ThemeData(
+          useMaterial3: true,
+        ),
+        home: const MyStorePage(),
       ),
-      home: const MyStorePage(),
     ),
   );
 }
@@ -25,14 +25,14 @@ class AppState {
   AppState({
     required this.productList,
     this.itemsInCart = const <String>{},
-});
+  });
 
-  AppState copyWith ({
+  AppState copyWith({
     List<String>? productList,
     Set<String>? itemsInCart,
-}) {
+  }) {
     return AppState(
-        productList: productList ?? this.productList,
+      productList: productList ?? this.productList,
       itemsInCart: itemsInCart ?? this.itemsInCart,
     );
   }
@@ -41,7 +41,8 @@ class AppState {
 class AppStateScope extends InheritedWidget {
   final AppState data;
 
-  const AppStateScope(this.data, {Key? key, required Widget child}) : super(key: key, child: child);
+  const AppStateScope(this.data, {Key? key, required Widget child})
+      : super(key: key, child: child);
 
   static AppState of(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<AppStateScope>()!.data;
@@ -49,7 +50,7 @@ class AppStateScope extends InheritedWidget {
 
   @override
   bool updateShouldNotify(AppStateScope oldWidget) {
-   return data != oldWidget.data;
+    return data != oldWidget.data;
   }
 }
 
@@ -69,8 +70,8 @@ class AppStateWidget extends StatefulWidget {
 class _AppStateWidgetState extends State<AppStateWidget> {
   AppState _data = AppState(productList: Server.getProductList());
 
-  void setProductList(List<String> newProductList){
-    if(newProductList != _data.productList) {
+  void setProductList(List<String> newProductList) {
+    if (newProductList != _data.productList) {
       setState(() {
         _data = _data.copyWith(
           productList: newProductList,
@@ -80,7 +81,7 @@ class _AppStateWidgetState extends State<AppStateWidget> {
   }
 
   void addToCart(String id) {
-    if(!_data.itemsInCart.contains(id)){
+    if (!_data.itemsInCart.contains(id)) {
       final Set<String> newItemsInCart = Set<String>.from(_data.itemsInCart);
       newItemsInCart.add(id);
       setState(() {
@@ -92,8 +93,8 @@ class _AppStateWidgetState extends State<AppStateWidget> {
   }
 
   void removeFromCart(String id) {
-    if(!_data.itemsInCart.contains(id)) {
-      final Set<String> newItemsInCart =Set<String>.from(_data.itemsInCart);
+    if (!_data.itemsInCart.contains(id)) {
+      final Set<String> newItemsInCart = Set<String>.from(_data.itemsInCart);
       newItemsInCart.remove(id);
       setState(() {
         _data = _data.copyWith(
@@ -109,6 +110,43 @@ class _AppStateWidgetState extends State<AppStateWidget> {
   }
 }
 
+class ShoppingCartIcon extends StatelessWidget {
+  const ShoppingCartIcon({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final Set<String> itemsInCart = AppStateScope.of(context).itemsInCart;
+    final bool hasPurchase = itemsInCart.isNotEmpty;
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Padding(
+          padding: EdgeInsets.only(right: hasPurchase ? 17.0 : 10.0),
+          child: const Icon(
+            Icons.shopping_cart,
+            color: Colors.black,
+          ),
+        ),
+        if (hasPurchase)
+          Padding(
+            padding: const EdgeInsets.only(left: 17.0),
+            child: CircleAvatar(
+              radius: 8.0,
+              backgroundColor: Colors.lightBlue,
+              foregroundColor: Colors.white,
+              child: Text(
+                itemsInCart.length.toString(),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12.0,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
 
 class MyStorePage extends StatefulWidget {
   const MyStorePage({Key? key}) : super(key: key);
@@ -150,20 +188,20 @@ class MyStorePageState extends State<MyStorePage> {
             ),
             title: _inSearch
                 ? TextField(
-              autofocus: true,
-              focusNode: _focusNode,
-              controller: _controller,
-              onSubmitted: (_) => _handleSearch(),
-              decoration: InputDecoration(
-                hintText: 'Search Google Store',
-                prefixIcon: IconButton(
-                    icon: const Icon(Icons.search),
-                    onPressed: _handleSearch),
-                suffixIcon: IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: _toggleSearch),
-              ),
-            )
+                    autofocus: true,
+                    focusNode: _focusNode,
+                    controller: _controller,
+                    onSubmitted: (_) => _handleSearch(),
+                    decoration: InputDecoration(
+                      hintText: 'Search Google Store',
+                      prefixIcon: IconButton(
+                          icon: const Icon(Icons.search),
+                          onPressed: _handleSearch),
+                      suffixIcon: IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: _toggleSearch),
+                    ),
+                  )
                 : null,
             actions: [
               if (!_inSearch)
@@ -340,7 +378,7 @@ class ProductTile extends StatelessWidget {
             child: OutlinedButton(
               style: ButtonStyle(
                 foregroundColor:
-                MaterialStateProperty.resolveWith(getButtonColor),
+                    MaterialStateProperty.resolveWith(getButtonColor),
                 side: MaterialStateProperty.resolveWith(getButtonSide),
               ),
               onPressed: purchased ? onRemoveFromCart : onAddToCart,
@@ -442,4 +480,3 @@ class Product {
   final String title;
   final TextSpan description;
 }
-
