@@ -38,6 +38,23 @@ class AppState {
   }
 }
 
+class AppStateScope extends InheritedWidget {
+  final AppState data;
+
+  const AppStateScope(this.data, {Key? key, required Widget child}) : super(key: key, child: child);
+
+  static AppState of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<AppStateScope>()!.data;
+  }
+
+  @override
+  bool updateShouldNotify(AppStateScope oldWidget) {
+   return data != oldWidget.data;
+  }
+
+
+}
+
 class MyStorePage extends StatefulWidget {
   const MyStorePage({Key? key}) : super(key: key);
 
