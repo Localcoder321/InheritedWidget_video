@@ -114,7 +114,6 @@ class AppStateWidgetState extends State<AppStateWidget> {
 
 class MyStorePage extends StatefulWidget {
   const MyStorePage({Key? key}) : super(key: key);
-
   @override
   MyStorePageState createState() => MyStorePageState();
 }
@@ -123,7 +122,6 @@ class MyStorePageState extends State<MyStorePage> {
   bool _inSearch = false;
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-
   void _toggleSearch() {
     setState(() {
       _inSearch = !_inSearch;
@@ -159,13 +157,11 @@ class MyStorePageState extends State<MyStorePage> {
               decoration: InputDecoration(
                 hintText: 'Search Google Store',
                 prefixIcon: IconButton(
-                  icon: const Icon(Icons.search),
-                  onPressed: _handleSearch,
-                ),
+                    icon: const Icon(Icons.search),
+                    onPressed: _handleSearch),
                 suffixIcon: IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: _toggleSearch,
-                ),
+                    icon: const Icon(Icons.close),
+                    onPressed: _toggleSearch),
               ),
             )
                 : null,
@@ -227,9 +223,9 @@ class ShoppingCartIcon extends StatelessWidget {
   }
 }
 
+// TODO: convert ProductListWidget into StatelessWidget.
 class ProductListWidget extends StatefulWidget {
   const ProductListWidget({Key? key}) : super(key: key);
-
   @override
   ProductListWidgetState createState() => ProductListWidgetState();
 }
@@ -237,7 +233,6 @@ class ProductListWidget extends StatefulWidget {
 class ProductListWidgetState extends State<ProductListWidget> {
   List<String> get productList => _productList;
   List<String> _productList = Server.getProductList();
-
   set productList(List<String> value) {
     setState(() {
       _productList = value;
@@ -246,7 +241,6 @@ class ProductListWidgetState extends State<ProductListWidget> {
 
   Set<String> get itemsInCart => _itemsInCart;
   Set<String> _itemsInCart = <String>{};
-
   set itemsInCart(Set<String> value) {
     setState(() {
       _itemsInCart = value;
@@ -327,15 +321,15 @@ class ProductTile extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(20),
             child: OutlinedButton(
-              child: purchased
-                  ? const Text('Remove from cart')
-                  : const Text('Add to cart'),
               style: ButtonStyle(
                 foregroundColor:
                 MaterialStateProperty.resolveWith(getButtonColor),
                 side: MaterialStateProperty.resolveWith(getButtonSide),
               ),
               onPressed: purchased ? onRemoveFromCart : onAddToCart,
+              child: purchased
+                  ? const Text('Remove from cart')
+                  : const Text('Add to cart'),
             ),
           ),
           Image.network(product.pictureURL),
@@ -357,13 +351,10 @@ const Map<String, Product> kDummyData = {
     title: 'Explore Pixel phones',
     description: TextSpan(children: <TextSpan>[
       TextSpan(
-        text: 'Capture the details.\n',
-        style: TextStyle(color: Colors.black),
-      ),
+          text: 'Capture the details.\n',
+          style: TextStyle(color: Colors.black)),
       TextSpan(
-        text: 'Capture your world.',
-        style: TextStyle(color: Colors.blue),
-      ),
+          text: 'Capture your world.', style: TextStyle(color: Colors.blue)),
     ]),
     pictureURL: '$baseAssetURL/pixels.png',
   ),
@@ -381,13 +372,8 @@ const Map<String, Product> kDummyData = {
     title: 'Nest Audio Entertainment packages',
     description: TextSpan(children: <TextSpan>[
       TextSpan(
-        text: 'Built for music.\n',
-        style: TextStyle(color: Colors.orange),
-      ),
-      TextSpan(
-        text: 'Made for you.',
-        style: TextStyle(color: Colors.black),
-      ),
+          text: 'Built for music.\n', style: TextStyle(color: Colors.orange)),
+      TextSpan(text: 'Made for you.', style: TextStyle(color: Colors.black)),
     ]),
     pictureURL: '$baseAssetURL/nest-audio-packages.png',
   ),
